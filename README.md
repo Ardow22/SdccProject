@@ -24,6 +24,10 @@ e per fermare i container basta utilizzare il comando
 ```bash
 docker-compose down
 ```
+oppure, se si vogliono cancellare anche i volumi:
+```bash
+docker-compose down -v
+```
 Se lo sviluppo è locale, una volta avviati i container l'applicazione si trova dal browser digitando
 ```bash
 localhost:80
@@ -93,7 +97,7 @@ sudo yum install git -y
 e fatto ciò bisogna spostarsi nella cartella ec2-user e clonare il repository da github:
 ```bash
 cd /home/ec2-user
-git clone
+git clone https://github.com/Ardow22/SdccProject.git
 ```
 Fatto ciò, bisogna entrare nella cartella mySql del progetto per modificare i permessi della cartella (questo passaggio serve a consentire al container di mySql di montare i database), e questo si può fare con i comandi
 ```bash
