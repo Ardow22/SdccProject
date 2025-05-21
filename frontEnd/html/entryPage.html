@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Selezione EC2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 400px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        #ec2IPInput {
+            display: none;
+        }
+
+        .invalid-feedback {
+            display: none;
+            color: red;
+            font-size: 0.9em;
+        }
+
+        input.is-invalid + .invalid-feedback {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3 class="mb-4">Stai usando EC2?</h3>
+
+    <form id="ec2Form">
+        <div class="mb-3">
+            <input type="radio" id="ec2Yes" name="ec2" value="yes" onclick="toggleEC2Input(true)">
+            <label for="ec2Yes">Sì</label><br>
+            <input type="radio" id="ec2No" name="ec2" value="no" onclick="toggleEC2Input(false)">
+            <label for="ec2No">No</label>
+        </div>
+
+        <div class="mb-3" id="ec2IPInput">
+            <label for="ec2IP">Inserisci l'indirizzo IP EC2</label>
+            <input type="text" id="ec2IP" name="ec2IP" class="form-control" placeholder="es. 3.122.45.67">
+            <div id="ipErrorMsg" class="invalid-feedback">Campo obbligatorio</div>
+        </div>
+
+        <button type="submit" id="entraBtn" class="btn btn-primary w-100" disabled>Entra</button>
+    </form>
+</div>
+
+<script>
+    function toggleEC2Input(isEC2) {
+        const ec2IPInputDiv = document.getElementById("ec2IPInput");
+        const ec2IPField = document.getElementById("ec2IP");
+        const errorMsg = document.getElementById("ipErrorMsg");
+        const btn = document.getElementById("entraBtn");
+
+        if (isEC2) {
+            ec2IPInputDiv.style.display = "block";
+        } else {
+            ec2IPInputDiv.style.display = "none";
+            ec2IPField.value = '';
+            ec2IPField.classList.remove('is-invalid');
+            errorMsg.textContent = 'Campo obbligatorio';
+        }
+
+        // Abilita il pulsante solo dopo aver scelto
+        btn.disabled = false;
+    }
+
+    document.getElementById("ec2Form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Evita il comportamento predefinito
+
+        const isEC2 = document.getElementById("ec2Yes").checked;
+        const ec2IP = document.getElementById("ec2IP");
+        const errorMsg = document.getElementById("ipErrorMsg");
+
+        if (isEC2) {
+            const ipValue = ec2IP.value.trim();
+            if (!ipValue) {
+                ec2IP.classList.add("is-invalid");
+                errorMsg.textContent = "Campo obbligatorio!";
+                return;
+            }
+            else if (!isValidIPv4(ipValue)) {
+                ec2IP.classList.add("is-invalid");
+                errorMsg.textContent = "Errore formato indirizzo";
+                return;
+            } else {
+                ec2IP.classList.remove("is-invalid");
+            }
+        }
+
+        const ipDaUsare = isEC2 ? ec2IP.value.trim() : "127.0.0.1";
+        sessionStorage.setItem('ipAddress', JSON.stringify({ ip: ipDaUsare }));
+        window.location.href = "registration.html";
+    });
+    //funzione ausiliaria per verificare che l'input sia corretto
+    function isValidIPv4(ip) {
+        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})(\.(25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})){3}$/;
+        return ipv4Regex.test(ip);
+    }
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

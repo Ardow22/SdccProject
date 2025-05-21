@@ -1,0 +1,139 @@
+version: '3'
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apiGateway/Dockerfile
+    ports:
+      - "31234:12345"  # Porta esposta per l'API Gateway
+    environment:
+      - MATCHING_SERVICE_ADDR=matching-service:8081
+      - NOTIFICATION_SERVICE_ADDR=notification-service:8082
+      - RECOMMENDATION_SERVICE_ADDR=recommendation-service:8083
+    depends_on:
+      - mysql
+      - rabbitmq
+      - matching-service
+      - notification-service
+      - recommendation-service
+      - mongodb
+    networks:
+      - backend
+
+  matching-service:
+    build:
+      context: .
+      dockerfile: matchingService/Dockerfile
+    ports:
+      - "8081:8081"  # Porta esposta per il Matching Service
+    environment:
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    depends_on:
+      - mysql
+    networks:
+      - backend
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notificationService/Dockerfile
+    ports:
+      - "8082:8082"  # Porta esposta per il Notification Service
+    environment:
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_HOST=mongodb-container
+      - DB_PORT=27017
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - backend
+
+  recommendation-service:
+    build:
+      context: .
+      dockerfile: recommendationService/Dockerfile
+    ports:
+      - "8083:8083"  # Porta esposta per il Recommendation Service
+    environment:
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    depends_on:
+      - mysql
+    networks:
+      - backend
+
+  rabbitmq:
+    image: rabbitmq:3-management  # versione con pannello web
+    ports:
+      - "5672:5672"    # Porta AMQP (per l'app)
+      - "15672:15672"  # Porta web (per il monitoraggio)
+    environment:
+      RABBITMQ_DEFAULT_USER: myuser
+      RABBITMQ_DEFAULT_PASS: mypassword
+    networks:
+      - backend
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # Password per l'utente root
+    volumes:
+      - mysql-data:/var/lib/mysql                # Volume persistente per i dati
+      - ./mySql/init:/docker-entrypoint-initdb.d  # Monta i file .sql presenti in mysql/init per inizializzare i DB
+    ports:
+      - "3307:3306"  # Porta MySQL del pc: porta del container
+    command: --sql-mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION"
+    networks:
+      - backend
+
+  mongodb:
+    image: mongo:latest  # Usa l'immagine ufficiale di MongoDB
+    container_name: mongodb-container
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root  # Username root per MongoDB
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword  # Password root per MongoDB
+    volumes:
+      - mongodb-data:/data/db  # Volume persistente per i dati di MongoDB
+    ports:
+      - "27017:27017"  # Porta MongoDB del pc: porta del container
+    networks:
+      - backend
+
+  frontend-service:
+    build:
+      context: .
+      dockerfile: frontEnd/Dockerfile
+    ports:
+      - "80:8085"  # Porta esposta per il frontEnd
+    depends_on:
+      - mysql
+      - rabbitmq
+      - api-gateway
+      - matching-service
+      - notification-service
+      - recommendation-service
+      - mongodb
+    networks:
+      - backend
+
+
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mysql-data:  # Volume persistente per mantenere i dati del database MySql
+  mongodb-data: #Volume persistente per mantenere i dati di MongoDB
+
+

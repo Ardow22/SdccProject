@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>App Matching: Matching</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #resultDisplay {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            color: black;
+        }
+
+        .form-matching {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+
+        /* Form sinistro */
+        #matchingForm {
+            width: 48%;
+            text-align: left;
+            font-size: 0.9em;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: black;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Form destro spostato verso destra */
+        .experience-section {
+            width: 48%;
+            text-align: left;
+            font-size: 0.9em;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: black;
+            display: flex;
+            flex-direction: column;
+            margin-left: 50px;
+        }
+
+        #matchingForm, #votoForm {
+            display: flex;
+            flex-direction: column;
+        }
+        #matchingForm > *, #votoForm > * {
+            flex-grow: 1;
+        }
+        #matchingForm button, #votoForm button {
+            flex-grow: 0;
+        }
+
+        .rating-radio {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .rating-radio input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn-custom {
+            width: 200px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-disabled {
+            background-color: #ccc !important;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        #goToRecommendation {
+            color: white;
+        }
+
+        #goToRecommendation:hover {
+            background-color: #0056b3;
+        }
+
+        #resendNotification {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #resendNotification:hover {
+            background-color: #0056b3;
+        }
+
+        #suggestions {
+            border: 1px solid #ccc;
+            display: none;
+            position: absolute;
+            background-color: white;
+            z-index: 10;
+        }
+        #suggestions div {
+            padding: 5px;
+            cursor: pointer;
+        }
+        #suggestions div:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center">Matching</h1>
+
+    <div id="resultDisplay"></div>
+    <main class="form-matching">
+        <form id="matchingForm">
+            <h2 class="h5 mb-3 fw-normal">Classifica gli ambiti preferiti</h2>
+            <div class="form-floating mb-3">
+                <select id="Cfield1" name="Cfield1" class="form-select" required>
+                    <option value="" disabled selected>Seleziona una carriera</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Software">Software</option>
+                    <option value="DataScience">Data science</option>
+                </select>
+                <label class="form-label" for="Cfield1">Carriera 1</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select id="Cfield2" name="Cfield2" class="form-select" required>
+                    <option value="" disabled selected>Seleziona una carriera</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Software">Software</option>
+                    <option value="DataScience">Data science</option>
+                </select>
+                <label class="form-label" for="Cfield2">Carriera 2</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select id="Cfield3" name="Cfield3" class="form-select" required>
+                    <option value="" disabled selected>Seleziona una carriera</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Software">Software</option>
+                    <option value="DataScience">Data science</option>
+                </select>
+                <label class="form-label" for="Cfield3">Carriera 3</label>
+            </div>
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Matching</button>
+        </form>
+
+        <form id="votoForm" class="experience-section">
+            <label class="form-label">Hai avuto esperienza? Inserisci una valutazione:</label>
+            <div class="form-floating mb-3">
+                <input type="text" id="azienda" name="azienda" class="form-control" placeholder="Nome Azienda" required>
+                <label for="azienda">Nome azienda</label>
+                <div id="suggestions"></div>
+            </div>
+            <div class="mb-3">
+                <div class="rating-radio">
+                    <input type="radio" id="voto_1" name="voto_esperienza" value="1" required>
+                    <label for="voto_1">1</label>
+                </div>
+                <div class="rating-radio">
+                    <input type="radio" id="voto_2" name="voto_esperienza" value="2">
+                    <label for="voto_2">2</label>
+                </div>
+                <div class="rating-radio">
+                    <input type="radio" id="voto_3" name="voto_esperienza" value="3">
+                    <label for="voto_3">3</label>
+                </div>
+                <div class="rating-radio">
+                    <input type="radio" id="voto_4" name="voto_esperienza" value="4">
+                    <label for="voto_4">4</label>
+                </div>
+                <div class="rating-radio">
+                    <input type="radio" id="voto_5" name="voto_esperienza" value="5">
+                    <label for="voto_5">5</label>
+                </div>
+            </div>
+            <button id="inserisciVoto" class="w-100 btn btn-lg btn-primary" type="submit" style="width: 100%;">Inserisci voto</button>
+        </form>
+
+    </main>
+    <div class="action-buttons">
+        <button id="resendNotification" class="w-100 btn btn-lg btn-primary" type="submit">Recupera ultima notifica</button>
+    </div>
+    <div class="action-buttons" style="margin-top: 10px;">
+        <button id="goToRecommendation" class="w-100 btn btn-lg btn-success" type="submit">Richiedi azienda raccomandata</button>
+    </div>
+    <div class="action-buttons" style="margin-top: 10px;">
+        <button id="exit" class="w-100 btn btn-lg btn-success" type="submit">Logout</button>
+    </div>
+
+</div>
+
+<script>
+    var ipString = sessionStorage.getItem('ipAddress');
+    var ipObj = JSON.parse(ipString);
+
+    var loginResultString = sessionStorage.getItem('loginResult');
+    //se i dati di sessione con le credenziali esistono, vengono mostrati a schermo
+    if (loginResultString) {
+        var loginResult = JSON.parse(loginResultString);
+
+        var formattedResult = "Nome: " + loginResult.Nome + "<br>" +
+            "Cognome: " + loginResult.Cognome + "<br>" +
+            "Eta': " + loginResult.Eta + "<br>" +
+            "Email: " + loginResult.Email + "<br>" +
+            "Voto: " + loginResult.VotoLaurea + "<br>" +
+            "Universita': " + loginResult.Universita + "<br>" +
+            "Corso: " + loginResult.TipoLaurea + "<br>" +
+            "Ultimo assegnamento: " + loginResult.Assegnamento;
+
+        document.getElementById('resultDisplay').innerHTML = formattedResult;
+
+        //i bottoni per richiedere l'azienda raccomandata o il reinvio della notifica sono disabilitati se non si è mai fatto un matching
+        const goToRecommendationButton = document.getElementById('goToRecommendation');
+        const resendNotificationButton = document.getElementById('resendNotification')
+        if (!loginResult.Assegnamento) {
+            goToRecommendationButton.disabled = true;
+            goToRecommendationButton.classList.add('btn-disabled');
+            goToRecommendationButton.classList.remove('btn-success');
+
+            resendNotificationButton.disabled = true;
+            resendNotificationButton.classList.add('btn-disabled');
+            resendNotificationButton.classList.remove('btn-primary');
+        } else {
+            goToRecommendationButton.disabled = false;
+            goToRecommendationButton.classList.remove('btn-disabled');
+            goToRecommendationButton.classList.add('btn-success');
+
+            resendNotificationButton.disabled = false;
+            resendNotificationButton.classList.remove('btn-disabled');
+            resendNotificationButton.classList.add('btn-primary');
+        }
+    } else {
+        document.getElementById('resultDisplay').textContent = "Non ci sono dati da mostrare";
+    }
+
+    //logica per disabilitare le carriere già selezionate
+    const cFields = ['Cfield1', 'Cfield2', 'Cfield3'];
+    cFields.forEach(id => {
+        document.getElementById(id).addEventListener('change', function() {
+            const selectedValue = this.value;
+            cFields.forEach(otherId => {
+                if (otherId !== id) {
+                    const otherSelect = document.getElementById(otherId);
+                    Array.from(otherSelect.options).forEach(option => {
+                        if (option.value === selectedValue) {
+                            option.disabled = this.value !== '';
+                        } else {
+                            //riabilitazione delle opzioni se non sono state selezionate da altri campi
+                            let isSelectedElsewhere = false;
+                            cFields.forEach(checkId => {
+                                if (checkId !== otherId && checkId !== id && document.getElementById(checkId).value === option.value) {
+                                    isSelectedElsewhere = true;
+                                }
+                            });
+                            option.disabled = isSelectedElsewhere;
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    //invio dei dati del form
+    document.getElementById("matchingForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        var form = event.target;
+        var formData = new FormData(form);
+
+        var data = {};
+        for (var [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+        //alcuni dati da inviare vengono recuperati dalle credenziali mostrate a schermo
+        if (loginResult) {
+            data.email = loginResult.Email;
+            data.voto = loginResult.VotoLaurea;
+            data.corso = loginResult.TipoLaurea
+        }
+        var jsonData = JSON.stringify(data);
+
+        var xhr = new XMLHttpRequest();
+        var url = "http://"+ipObj.ip+":31234/service1/match/matching";
+
+
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            console.log(xhr.readyState);
+            console.log(xhr.status);
+            //gestione della risposta alla richiesta POST
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                var result = response.result;
+                if (result == "Error dial") {
+                    alert("Error service!")
+                    resetMatchingFormInputs()
+                }
+                else if (result == "Error open database") {
+                    alert("Error open database")
+                    resetMatchingFormInputs()
+                }
+                else if (result == "Error update database") {
+                    alert("Error update database")
+                    resetMatchingFormInputs()
+                }
+                else if (result == undefined) {
+                    alert("Servizio richiesto attualmente non disponibile")
+                    resetMatchingFormInputs()
+                }
+                else {
+                    alert(result)
+                    resetMatchingFormInputs()
+                    //Aggiornamento di loginResult quando si fa il matching con il nuovo responso
+                    loginResult.Assegnamento = result;
+                    //Aggiornamento di loginResultString con il nuovo loginResult
+                    loginResultString = JSON.stringify(loginResult);
+                    //Aggiornamento di sessionStorage con il nuovo responso
+                    sessionStorage.setItem('loginResult', loginResultString);
+                    //Aggiornamento della pagina per riflettere il nuovo stato di loginResult.Assegnamento
+                    window.location.href = "matching.html";
+                }
+            }else if(xhr.readyState === 4 && xhr.status != 200) {
+                var response = JSON.parse(xhr.responseText);
+                errore = response["error"];
+                alert(errore);
+                message = response["e"];
+            }
+        };
+
+        xhr.send(jsonData);
+    });
+
+    //invio dei dati del form sulla votazione ad una azienda
+    document.getElementById('votoForm').addEventListener("submit", function(event) {
+        event.preventDefault()
+
+        //validazione del nome dell'azienda
+        if (!validateAzienda()) {
+            return; //annulla l'invio del modulo
+        }
+
+        var form2 = event.target;
+        var formData2 = new FormData(form2);
+
+        var data2 = {};
+        for (var [key2, value2] of formData2.entries()) {
+            data2[key2] = value2;
+        }
+        //alcuni dati vengono recuperati dalle credenziali mostrate a schermo
+        data2.Email = loginResult.Email
+        data2.Corso = loginResult.TipoLaurea
+        data2.Voto = loginResult.VotoLaurea
+
+        var jsonData2 = JSON.stringify(data2);
+        var xhr2 = new XMLHttpRequest();
+        var url2 = "http://"+ipObj.ip+":31234/service3/recommendation/insert";
+
+        xhr2.open("POST", url2, true);
+        xhr2.setRequestHeader("Content-Type", "application/json");
+        xhr2.onreadystatechange = function () {
+            console.log(xhr2.readyState);
+            console.log(xhr2.status);
+            //gestione della risposta alla richiesta POST
+            if (xhr2.readyState === 4 && xhr2.status === 200) {
+                var response2 = JSON.parse(xhr2.responseText);
+                var result2 = response2.result;
+                if (result2 == 1) {
+                    alert("Voto inserito correttamente")
+                    resetVotoFormInputs()
+                }
+                else if (result2 == -5) {
+                    alert("Errore nel servizio!")
+                    resetVotoFormInputs()
+                }
+                else if (result2 == -1) {
+                    alert("Errore di connessione al database")
+                    resetVotoFormInputs()
+                }
+                else if (result2 == -2) {
+                    alert ("Errore di inserimento nel database")
+                    resetVotoFormInputs()
+                }
+                else if (result2 == undefined) {
+                    alert("Servizio richiesto attualmente non disponibile")
+                    resetVotoFormInputs()
+                }
+            }else if(xhr2.readyState === 4 && xhr2.status != 200) {
+                var response2 = JSON.parse(xhr2.responseText);
+                errore = response2["error"];
+                alert(errore);
+                message = response2["e"];
+            }
+        };
+
+        xhr2.send(jsonData2);
+    });
+
+    //invio dei dati per ricevere nuovamante la notifica
+    document.getElementById('resendNotification').addEventListener("click", function(event) {
+        event.preventDefault()
+        var data3 = {};
+        data3.Email = loginResult.Email
+
+        var jsonData3 = JSON.stringify(data3);
+        var xhr3 = new XMLHttpRequest();
+        var url3 = "http://"+ipObj.ip+":31234/service2/notify";
+
+        xhr3.open("POST", url3, true);
+        xhr3.setRequestHeader("Content-Type", "application/json");
+        xhr3.onreadystatechange = function () {
+            console.log(xhr3.readyState);
+            console.log(xhr3.status);
+            //gestione della risposta alla richiesta POST
+            if (xhr3.readyState === 4 && xhr3.status === 200) {
+                var response3 = JSON.parse(xhr3.responseText);
+                var result3 = response3.result;
+                if (result3 == 1) {
+                    alert("Notifica inviata correttamente")
+                }
+                else if (result3 == -1) {
+                    alert("Error di connessiona al database")
+                    resetVotoFormInputs()
+                }
+                else if (result3 == -2) {
+                    alert ("Errore d'inserimento al database")
+                    resetVotoFormInputs()
+                }
+                else if (result3 == undefined) {
+                    alert("Servizio richiesto attualmente non disponibile")
+                    resetVotoFormInputs()
+                }
+            }else if(xhr3.readyState === 4 && xhr3.status != 200) {
+                var response3 = JSON.parse(xhr3.responseText);
+                errore = response3["error"];
+                alert(errore);
+                message = response3["e"];
+            }
+        };
+
+        xhr3.send(jsonData3);
+    });
+
+    //validazione del nome dell'azienda
+    function validateAzienda() {
+        const aziendaInput = document.getElementById('azienda');
+
+        if (!allCompanies.includes(aziendaInput.value)) {
+            alert("Errore nel nome dell'azienda");
+            resetVotoFormInputs()
+            return false;//validazione fallita
+        } else {
+            return true;//validazione riuscita
+        }
+    }
+
+
+    //funzioen ausiliaria per il reset degli input per matchingForm
+    function resetMatchingFormInputs() {
+        document.getElementById("Cfield1").selectedIndex = 0;
+        document.getElementById("Cfield2").selectedIndex = 0;
+        document.getElementById("Cfield3").selectedIndex = 0;
+    }
+
+    //funzione ausiliaria per il reset degli input per votoForm
+    function resetVotoFormInputs() {
+        document.getElementById("azienda").value = "";
+        const radioButtons = document.getElementsByName("voto_esperienza");
+        radioButtons.forEach(radio => radio.checked = false);
+    }
+
+    //logica del bottone per andare alla pagina della raccomandazione
+    document.getElementById('goToRecommendation').addEventListener("click", function(event) {
+        event.preventDefault();
+        //mi salvo i dati di sessione per mostrarli anche nella prossima pagina
+        sessionStorage.setItem('loginResult', loginResultString);
+        window.location.href = "recommendation.html";
+    });
+
+    //bottone per tornare alla pagina iniziale
+    document.getElementById('exit').addEventListener("click", function(event) {
+        event.preventDefault();
+        resetVotoFormInputs()
+        resetMatchingFormInputs()
+        window.location.href = "registration.html";
+    });
+
+    const inputField = document.getElementById('azienda');
+    const suggestionsDiv = document.getElementById('suggestions');
+
+    let allCompanies = []; //array per memorizzare tutte le aziende
+
+    inputField.addEventListener('input', function() {
+        const inputValue = this.value;
+        if (inputValue.length < 2) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+
+        if (allCompanies.length === 0) { //se l'array è vuoto, si recuperano le aziende
+            fetch("http://"+ipObj.ip+":31234/service1/match/retrieveCompanies", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ input: inputValue })
+            })
+                .then(response => response.json()) //analisi della risposta JSON
+                .then(data => {
+                    if (data && data.result) {
+                        allCompanies = data.result.map(company => company.replace(/,/g, '')); //memorizzo tutte le aziende rimuovendo le virgole.
+                        displaySuggestions(inputValue); //mostro i suggerimenti
+                    }
+                })
+                .catch(error => console.error('Errore:', error));
+        } else { //altrimenti, uso l'array memorizzato con le aziende già recuperate in precedenza
+            displaySuggestions(inputValue);
+        }
+    });
+
+    function displaySuggestions(inputValue) {
+        const filteredSuggestions = allCompanies.filter(suggestion =>
+            suggestion.toLowerCase().startsWith(inputValue.toLowerCase())
+        );
+
+        suggestionsDiv.innerHTML = '';
+
+        if (filteredSuggestions.length > 0) {
+            //limitazione dei risultati alle prime 8 aziende dell'array
+            const limitedSuggestions = filteredSuggestions.slice(0, 8);
+
+            limitedSuggestions.forEach(suggestion => {
+                const suggestionElement = document.createElement('div');
+                suggestionElement.textContent = suggestion;
+                suggestionElement.addEventListener('click', function() {
+                    inputField.value = suggestion;
+                    suggestionsDiv.style.display = 'none';
+                });
+                suggestionsDiv.appendChild(suggestionElement);
+            });
+            suggestionsDiv.style.display = 'block';
+        } else {
+            suggestionsDiv.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        if (event.target !== inputField) {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

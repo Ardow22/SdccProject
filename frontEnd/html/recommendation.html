@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>App Matching: raccomandazioni</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+      background-size: cover;
+      background-repeat: no-repeat;
+      color: white;
+    }
+
+    #resultDisplay {
+      text-align: center;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+      color: black;
+      border-radius: 8px;
+    }
+
+    .form-recommendation {
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 8px;
+      color: black;
+    }
+
+    .form-floating {
+      margin-bottom: 10px;
+    }
+
+    .button-spacing {
+      margin-top: 10px;
+    }
+
+    #suggestions {
+      border: 1px solid #ccc;
+      display: none;
+      position: absolute;
+      background-color: white;
+      z-index: 10;
+    }
+    #suggestions div {
+      padding: 5px;
+      cursor: pointer;
+    }
+    #suggestions div:hover {
+      background-color: #f0f0f0;
+    }
+
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+
+<h1>Aziende raccomandate</h1>
+
+<div id="resultDisplay"></div>
+
+<main class="form-recommendation">
+  <form id="recommendationForm">
+
+    <h1 class="h3 mb-3 fw-normal">Inserisci il nome dell'azienda</h1>
+
+    <div class="form-floating mb-3">
+      <input type="text" id="companyName" name="companyName" class="form-control" placeholder="Company Name" required>
+      <label class="form-label" for="companyName">Nome dell'azienda</label>
+      <div id="suggestions"></div>
+    </div>
+
+    <button class="w-100 btn btn-lg btn-primary" type="submit">Richiedi raccomandazione</button>
+  </form>
+
+  <div id="recommendationResult" style="margin-top: 20px;"></div>
+</main>
+
+<div style="margin-top: 30px; width: 80%; max-width: 400px; text-align: center;">
+  <button id="btnMatching" class="w-100 btn btn-lg btn-success button-spacing" type="submit">Torna al matching</button>
+  <button id="btnLogout" class="w-100 btn btn-lg btn-success button-spacing" type="submit">Logout</button>
+</div>
+
+<script>
+  var ipString = sessionStorage.getItem('ipAddress');
+  var ipObj = JSON.parse(ipString);
+
+  //variabile ausiliaria nel caso il servizio non fosse attivo per recuperare la lista delle aziende
+  var noService = 0;
+
+  var loginResultString = sessionStorage.getItem('loginResult');
+  //se i dati di sessione esistono vengono mostrati a schermo
+  if (loginResultString) {
+    var loginResult = JSON.parse(loginResultString);
+
+    var formattedResult = "Nome: " + loginResult.Nome + "<br>" +
+            "Cognome: " + loginResult.Cognome + "<br>" +
+            "Eta': " + loginResult.Eta + "<br>" +
+            "Email: " + loginResult.Email + "<br>" +
+            "Voto: " + loginResult.VotoLaurea + "<br>" +
+            "Universita': " + loginResult.Universita + "<br>" +
+            "Corso: " + loginResult.TipoLaurea + "<br>" +
+            "Ultimo assegnamento: " + loginResult.Assegnamento;
+
+    document.getElementById('resultDisplay').innerHTML = formattedResult;
+  } else {
+    document.getElementById('resultDisplay').textContent = "Non ci sono dati da mostrare";
+  }
+
+
+  document.getElementById("recommendationForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    if (noService == 0) {
+      //validazione del nome dell'azienda
+      if (!validateAzienda()) {
+        return; //annullamento dell'invio del modulo
+      }
+    }
+
+    var form = event.target;
+    var formData = new FormData(form);
+
+    var data = {};
+    for (var [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    //alcuni dati vengono recuperati direttamente dalle credenziali mostrate a schermo
+    data.email = loginResult.Email;
+    data.voto = loginResult.VotoLaurea;
+    data.corso = loginResult.TipoLaurea
+    var jsonData = JSON.stringify(data);
+
+    var xhr = new XMLHttpRequest();
+    var url = "http://"+ipObj.ip+":31234/service3/recommendation/recommend"
+
+
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      //gestione delle possibili risposte alla richiesta POST
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        var result = response.result;
+        if (result == undefined) {
+          alert("Servizio attualmente non disponibile")
+          document.getElementById("companyName").value = "";
+        }
+        else if (result == -10) {
+          alert("Azienda non raccomandata")
+          document.getElementById("companyName").value = "";
+        }
+        else {
+          alert("Posizione dell'azienda nell'elenco di quelle raccomandate: " + result)
+          document.getElementById("companyName").value = "";
+        }
+      } else if (xhr.readyState === 4 && xhr.status !== 200) {
+        var response = JSON.parse(xhr.responseText);
+        var error = response.error;
+        alert(error);
+      }
+    };
+
+    xhr.send(jsonData);
+  });
+
+  //bottone per tornare alla pagina precedente, quella del matching
+  document.getElementById('btnMatching').addEventListener("click", function(event) {
+    event.preventDefault();
+    window.location.href = "matching.html";
+  });
+
+  //bottone per tornare alla pagina iniziale
+  document.getElementById('btnLogout').addEventListener("click", function(event) {
+    event.preventDefault();
+    window.location.href = "registration.html";
+  });
+
+  const inputField = document.getElementById('companyName');
+  const suggestionsDiv = document.getElementById('suggestions');
+
+  let allCompanies = []; //array per memorizzare tutte le aziende
+
+  inputField.addEventListener('input', function() {
+    const inputValue = this.value;
+    //i suggerimenti sulle possibili aziende iniziano da quando l'utente inserisce la seconda lettera
+    if (inputValue.length < 2) {
+      suggestionsDiv.style.display = 'none';
+      return;
+    }
+
+    if (allCompanies.length === 0) { //se l'array è vuoto, allora si recuper la lista delle aziende dal servizio
+      fetch("http://"+ipObj.ip+":31234/service3/recommendation/retrieveCompanies", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ input: inputValue })
+      })
+              .then(response => response.json()) //analisi della risposta JSON
+              .then(data => {
+                if (data && data.result) {
+                  allCompanies = data.result.map(company => company.replace(/,/g, '')); //memorizzo tutte le aziende rimuovendo le virgole.
+                  displaySuggestions(inputValue); //mostro i suggerimenti
+                }
+                else {
+                  noService = 1;
+                }
+              })
+              .catch(error => console.error('Errore:', error));
+    } else { //altrimenti, uso l'array memorizzato e già caricato in precedenza
+      displaySuggestions(inputValue);
+    }
+  });
+
+  //funzione per mostrare i suggerimenti delle aziende inseribili
+  function displaySuggestions(inputValue) {
+    const filteredSuggestions = allCompanies.filter(suggestion =>
+            suggestion.toLowerCase().startsWith(inputValue.toLowerCase())
+    );
+
+    suggestionsDiv.innerHTML = '';
+
+    if (filteredSuggestions.length > 0) {
+      //limitazione dei risultati alle prime 8 aziende dell'array
+      const limitedSuggestions = filteredSuggestions.slice(0, 8);
+
+      limitedSuggestions.forEach(suggestion => {
+        const suggestionElement = document.createElement('div');
+        suggestionElement.textContent = suggestion;
+        suggestionElement.addEventListener('click', function() {
+          inputField.value = suggestion;
+          suggestionsDiv.style.display = 'none';
+        });
+        suggestionsDiv.appendChild(suggestionElement);
+      });
+      suggestionsDiv.style.display = 'block';
+    } else {
+      suggestionsDiv.style.display = 'none';
+    }
+  }
+
+  document.addEventListener('click', function(event) {
+    if (event.target !== inputField) {
+      suggestionsDiv.style.display = 'none';
+    }
+  });
+
+  //funzione ausiliaria per controllare il nome dell'azienda inserito dall'utente
+  function validateAzienda() {
+    const aziendaInput = document.getElementById('companyName');
+
+    if (!allCompanies.includes(aziendaInput.value)) {
+      alert("Non ci sono voti per questa azienda");
+      document.getElementById('companyName').value = '';
+      return false; //validazione fallita
+    } else {
+      return true; //validazione riuscita
+    }
+  }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
