@@ -93,7 +93,7 @@ sudo yum install git -y
 poi bisogna spostarsi nella cartella ec2-user e da lì far partire il clone del repository, per cui:
 ```bash
 cd /home/ec2-user
-git clone 
+git clone https://github.com/Ardow22/SdccProject.git 
 ```
 e successivamente bisogna entrare nella cartella mySql del progetto per modificare i permessi della cartella (questo passaggio serve a consentire al container di mySql di montare i database), e questo si può fare con i comandi
 ```bash
