@@ -63,7 +63,7 @@ altrimenti è possibile premere su "Iscriviti" e registrarsi usando il seguente 
 In aggiunta, dalla schermata principale è possibile anche accedere alla schermata per aggiungere una nuova azienda nel sistema (funzionalità pensata per le aziende)
 ![](screenshot/App3.PNG)
 Una volta entrati come utente loggato ci si trova di fronte alla seguente schermata. I tasti di re-invio della notifica e di accesso alla funzionalità di raccomandazione sono disattivati se un utente non ha mai fatto un matching. A questo punto compilando gli appositi campi, un utente può eseguire l'algoritmo di matching e può anche votare un'azienda (tra quelle presenti nel sistema, infatti comparirà un menu a tendina per mostrare le aziende che è possibile votare. Per semplicità, le aziende presenti nel database sono tutte del tipo Azienda 1, Azienda 2,...fino ad Azienda 100). Appena eseguito il matching, l'utente riceverà tramite mail l'elenco delle aziende.
-![](img/App4.PNG)
+![](screenshot/App4.PNG)
 Infine l'ultima schermata riguarda la possibilità di capire se un'azienda è raccomandata o no per l'utente che richiede il consiglio
 ![](screenshot/App5.PNG)
 ### Deployment su Ec2
@@ -86,17 +86,26 @@ scaricare Docker compose e rendere eseguibili i relativi file
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
-Poi bisogna copiare il progetto sdccProject dentro la macchina virtuale, e successivamente bisogna entrare nella cartella mySql del progetto per modificare i permessi della cartella (questo passaggio serve a consentire al container di mySql di montare i database), e questo si può fare con i comandi
+Poi bisogna portare il progetto dentro la macchina virtuale, e questo si può fare clonando il repository da github, per cui bisogna installare git con il seguente comando: 
 ```bash
-cd /home/ec2-user/sdccProject/mySql
-chmod 755 init
-chmod 644 init/*.sql
+sudo yum install git -y
+```
+e fatto ciò bisogna spostarsi nella cartella ec2-user e clonare il repository da github:
+```bash
+cd /home/ec2-user
+git clone
+```
+Fatto ciò, bisogna entrare nella cartella mySql del progetto per modificare i permessi della cartella (questo passaggio serve a consentire al container di mySql di montare i database), e questo si può fare con i comandi
+```bash
+cd /home/ec2-user/SdccProject/mySql
+sudo chmod 755 init
+sudo chmod 644 init/*.sql
 ```
 A questo punto bisogna avviare Docker, per cui eseguire il comando
 ```bash
 sudo systemctl start docker
 ```
-A questo punto bisogna fare il build ed avviare i container, per cui da dentro la cartella sdccProject eseguire il comando
+Ed ora non resta altro che fare il build ed avviare i container, per cui da dentro la cartella SdccProject eseguire il comando
 ```bash
 sudo docker-compose up --build
 ```
