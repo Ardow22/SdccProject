@@ -86,17 +86,26 @@ scaricare Docker compose e rendere eseguibili i relativi file
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
-Poi bisogna copiare il progetto sdccProject dentro la macchina virtuale, e successivamente bisogna entrare nella cartella mySql del progetto per modificare i permessi della cartella (questo passaggio serve a consentire al container di mySql di montare i database), e questo si può fare con i comandi
+Poi bisogna portare il progetto dentro la macchina virtuale, per cui innanzitutto si può installare git tramite il seguente comando: 
 ```bash
-cd /home/ec2-user/sdccProject/mySql
-chmod 755 init
-chmod 644 init/*.sql
+sudo yum install git -y
+```
+poi bisogna spostarsi nella cartella ec2-user e da lì far partire il clone del repository, per cui:
+```bash
+cd /home/ec2-user
+git clone 
+```
+e successivamente bisogna entrare nella cartella mySql del progetto per modificare i permessi della cartella (questo passaggio serve a consentire al container di mySql di montare i database), e questo si può fare con i comandi
+```bash
+cd /home/ec2-user/SdccProject/mySql
+sudo chmod 755 init
+sudo chmod 644 init/*.sql
 ```
 A questo punto bisogna avviare Docker, per cui eseguire il comando
 ```bash
 sudo systemctl start docker
 ```
-A questo punto bisogna fare il build ed avviare i container, per cui da dentro la cartella sdccProject eseguire il comando
+A questo punto bisogna fare il build ed avviare i container, per cui da dentro la cartella SdccProject eseguire il comando
 ```bash
 sudo docker-compose up --build
 ```
