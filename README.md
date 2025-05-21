@@ -1,7 +1,7 @@
 # Applicazione a microservizi
 Il progetto prevede lo sviluppo di un'applicazione a microservizi. In particolare, l'applicazione è rivolta ad utenti laureati nelle università di Roma che vogliono trovare lavoro in ambito IT in base alle proprie preferenze (Cybersecurity, Software e Data science). Per realizzare ciò, l'applicazione prevede: un microservizio di matching sfruttando l'algoritmo Top Trading Cycle, un microservizio di raccomandazione di una determinata azienda richiesta dall'utente implementando una sorta di "collaborative filtering" ed un microservizio di notifica per l'utente, in modo che possa ricevere tramite email l'elenco delle aziende associate al determinato ambito IT risultante dall'algoritmo di matching. A supporto, l'applicazione prevede anche un servizio di api gateway ed un servizio di front end.
 L'applicazione prevede principalmente l'orchestrazione di container tramite docker-compose, ma per uno sviluppo locale è possibile usare anche l'orchestrazione tramite kubernetes.
-![](img/appMATCHING.PNG)
+![](screenshot/appMATCHING.PNG)
 
 
 # Funzionamento
@@ -55,17 +55,17 @@ localhost:30085
 
 ## Utilizzo dell'applicazione (+ Screenshot)
 L'applicazione si presenta con una prima schermata che serve per capire se il deployment stato fatto su Ec2 oppure no. In caso in cui il deployment sia stato fatto su una macchina virtuale di Ec2, bisogna rispondere "Sì" ed inserire l'IP pubblico della macchina virtuale (nel formato ipv4).
-![](img/App0.PNG)
+![](screenshot/App0.PNG)
 A questo punto si entra nell'applicazione vera e propria con una schermata in cui è possibile fare il login se un utente è già registrato. Se si vuole provare l'applicazione un utente presente nel database è mail: francesco@gmail.com [MEMO: mail inventata e non esistente], password: Ciccio.80.
-![](img/App1.PNG)
+![](screenshot/App1.PNG)
 altrimenti è possibile premere su "Iscriviti" e registrarsi usando il seguente form:
-![](img/App2.PNG)
+![](screenshot/App2.PNG)
 In aggiunta, dalla schermata principale è possibile anche accedere alla schermata per aggiungere una nuova azienda nel sistema (funzionalità pensata per le aziende)
-![](img/App3.PNG)
+![](screenshot/App3.PNG)
 Una volta entrati come utente loggato ci si trova di fronte alla seguente schermata. I tasti di re-invio della notifica e di accesso alla funzionalità di raccomandazione sono disattivati se un utente non ha mai fatto un matching. A questo punto compilando gli appositi campi, un utente può eseguire l'algoritmo di matching e può anche votare un'azienda (tra quelle presenti nel sistema, infatti comparirà un menu a tendina per mostrare le aziende che è possibile votare. Per semplicità, le aziende presenti nel database sono tutte del tipo Azienda 1, Azienda 2,...fino ad Azienda 100). Appena eseguito il matching, l'utente riceverà tramite mail l'elenco delle aziende.
 ![](img/App4.PNG)
 Infine l'ultima schermata riguarda la possibilità di capire se un'azienda è raccomandata o no per l'utente che richiede il consiglio
-![](img/App5.PNG)
+![](screenshot/App5.PNG)
 ### Deployment su Ec2
 Per fare il deployment dell'applicazione su una macchina virtuale del servizio Ec2 bisogna seguire vari passaggi. In primo luogo bisogna accedere ad AWS e andare a creare una macchina virtuale. Si consiglia una macchina virtuale almeno di taglia t3.small con sistema operativo Amazon Linux. Inoltre, le porte che bisogna aprire della macchina virtuale sono la porta 20 per il traffico SSH, la porta 80 per il traffico http e anche la porta 31234 usando la regola tcp personalizzata nella configurazione di sicurezza (serve per il funzionamento dell'applicazione).
 Per connettersi alla macchina virtuale tramite terminale bisogna usare il comando
