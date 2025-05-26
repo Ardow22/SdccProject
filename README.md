@@ -58,7 +58,7 @@ localhost:30085
 ```
 
 ## Utilizzo dell'applicazione (+ Screenshot)
-L'applicazione si presenta con una prima schermata che serve per capire se il deployment stato fatto su Ec2 oppure no. In caso in cui il deployment sia stato fatto su una macchina virtuale di Ec2, bisogna rispondere "Sì" ed inserire l'IP pubblico della macchina virtuale (nel formato ipv4).
+L'applicazione si presenta con una prima schermata che serve per capire se il deployment stato fatto su Ec2 oppure no. In caso in cui il deployment sia stato fatto su una macchina virtuale di Ec2, bisogna rispondere "Sì" ed inserire l'IP pubblico della macchina virtuale (nel formato ipv4, quindi senza http://, solo i numeri), mentre se il deployment è locale bisogna rispondere no
 ![](screenshot/App0.PNG)
 A questo punto si entra nell'applicazione vera e propria con una schermata in cui è possibile fare il login se un utente è già registrato. Se si vuole provare l'applicazione un utente presente nel database è mail: francesco@gmail.com [MEMO: mail inventata e non esistente], password: Ciccio.80.
 ![](screenshot/App1.PNG)
