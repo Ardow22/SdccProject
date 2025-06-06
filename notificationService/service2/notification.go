@@ -21,8 +21,8 @@ import (
 const (
 	smtpServer   = "smtp.gmail.com"
 	smtpPort     = "587"
-	smtpUser     = "secondamaill3@gmail.com"
-	smtpPassword = "nxcuzgbgcdfakduc"
+	smtpUser     = "niente"
+	smtpPassword = "niente"
 	queueName    = "matching"
 )
 
